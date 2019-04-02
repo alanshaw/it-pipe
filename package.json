@@ -1,6 +1,6 @@
 {
   "name": "it-pipe",
-  "version": "0.0.0",
+  "version": "1.0.0",
   "description": "Utility to \"pipe\" async iterables together",
   "main": "index.js",
   "scripts": {
