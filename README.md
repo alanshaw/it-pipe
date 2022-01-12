@@ -1,7 +1,7 @@
 # it-pipe
 
-[![Build Status](https://github.com/alanshaw/it-pipe/actions/workflows/main.yml/badge.svg?branch=master)](https://github.com/alanshaw/it-pipe/actions/workflows/main.yml)
-[![dependencies Status](https://david-dm.org/alanshaw/it-pipe/status.svg)](https://david-dm.org/alanshaw/it-pipe)
+[![Build Status](https://github.com/alanshaw/it-pipe/actions/workflows/js-test-and-release.yml/badge.svg?branch=master)](https://github.com/alanshaw/it-pipe/actions/workflows/js-test-and-release.yml)
+[![Dependencies Status](https://david-dm.org/alanshaw/it-pipe/status.svg)](https://david-dm.org/alanshaw/it-pipe)
 [![JavaScript Style Guide](https://img.shields.io/badge/code_style-standard-brightgreen.svg)](https://standardjs.com)
 
 > Utility to "pipe" async iterables together
