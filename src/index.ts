@@ -1,3 +1,5 @@
+import { pushable } from 'it-pushable'
+import merge from 'it-merge'
 import type * as it from 'it-stream-types'
 
 export const rawPipe = (...fns: any) => {
@@ -22,8 +24,20 @@ export const isDuplex = <TSource, TSink = TSource, RSink = Promise<void>> (obj: 
 
 const duplexPipelineFn = <TSource> (duplex: any) => {
   return (source: any): it.Source<TSource> => {
-    duplex.sink(source) // TODO: error on sink side is unhandled rejection - this is the same as pull streams
-    return duplex.source
+    const p = duplex.sink(source);
+
+    if (p.then) {
+      const stream = pushable<TSource>()
+      p.then(() => {
+        stream.end()
+      }, (err: Error) => {
+        stream.end(err)
+      })
+
+      return merge(stream, duplex.source)
+    }
+
+    return duplex.source;
   }
 }
 
