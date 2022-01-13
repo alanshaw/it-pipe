@@ -1,3 +1,10 @@
+### [2.0.2](https://github.com/alanshaw/it-pipe/compare/v2.0.1...v2.0.2) (2022-01-13)
+
+
+### Bug Fixes
+
+* propagate duplex transform sink errors ([#8](https://github.com/alanshaw/it-pipe/issues/8)) ([89df9be](https://github.com/alanshaw/it-pipe/commit/89df9be10965d445c49d5b9ba35a9cb61edd71bf))
+
 ### [2.0.1](https://github.com/alanshaw/it-pipe/compare/v2.0.0...v2.0.1) (2022-01-13)
 
 
