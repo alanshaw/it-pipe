@@ -3,7 +3,8 @@ import { pipe } from '../src/index.js'
 import all from 'it-all'
 import drain from 'it-drain'
 import { filter, collect, consume } from 'streaming-iterables'
-import type { Duplex } from 'it-stream-types'
+import delay from 'delay'
+import type { Duplex, Source } from 'it-stream-types'
 
 const oneTwoThree = () => [1, 2, 3]
 
@@ -115,5 +116,25 @@ describe('it-pipe', () => {
     )
 
     expect(result).to.be.undefined()
+  })
+
+  it('should propagate duplex transform sink errors', async () => {
+    const err = new Error('Aaargh')
+
+    await expect(
+      pipe(
+        oneTwoThree, {
+          source: (async function * () {
+            await delay(1000)
+            yield 5
+          }()),
+          sink: async (source: Source<number>) => {
+            await delay(20)
+            throw err
+          }
+        },
+        async (source) => await drain(source)
+      )
+    ).to.eventually.be.rejected.with.property('message', err.message)
   })
 })
