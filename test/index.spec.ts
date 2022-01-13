@@ -7,12 +7,6 @@ import delay from 'delay'
 import type { Duplex, Source } from 'it-stream-types'
 
 const oneTwoThree = () => [1, 2, 3]
-const forever = async function * () {
-  while (true) {
-    yield Math.random()
-    await delay(1)
-  }
-}
 
 describe('it-pipe', () => {
   it('should pipe source', async () => {
@@ -129,7 +123,7 @@ describe('it-pipe', () => {
 
     await expect(
       pipe(
-        forever(), {
+        oneTwoThree, {
           source: (async function * () {
             await delay(1000)
             yield 5
