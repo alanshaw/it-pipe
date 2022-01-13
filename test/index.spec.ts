@@ -130,14 +130,17 @@ describe('it-pipe', () => {
     await expect(
       pipe(
         forever(), {
-          source: async function * () {
+          source: (async function * () {
             await delay(1000)
-          }(),
+            yield 5
+          }()),
           sink: async (source: Source<number>) => {
             await delay(20)
             throw err
           }
-        }, (source) => drain(source))
+        },
+        async (source) => await drain(source)
+      )
     ).to.eventually.be.rejected.with.property('message', err.message)
   })
 })

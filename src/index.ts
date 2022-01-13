@@ -24,9 +24,9 @@ export const isDuplex = <TSource, TSink = TSource, RSink = Promise<void>> (obj: 
 
 const duplexPipelineFn = <TSource> (duplex: any) => {
   return (source: any): it.Source<TSource> => {
-    const p = duplex.sink(source);
+    const p = duplex.sink(source)
 
-    if (p.then) {
+    if (p.then != null) {
       const stream = pushable<TSource>()
       p.then(() => {
         stream.end()
@@ -37,7 +37,7 @@ const duplexPipelineFn = <TSource> (duplex: any) => {
       return merge(stream, duplex.source)
     }
 
-    return duplex.source;
+    return duplex.source
   }
 }
 
