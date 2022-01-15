@@ -1,3 +1,10 @@
+### [2.0.3](https://github.com/alanshaw/it-pipe/compare/v2.0.2...v2.0.3) (2022-01-15)
+
+
+### Bug Fixes
+
+* support goodbye sources ([#10](https://github.com/alanshaw/it-pipe/issues/10)) ([1e4bc73](https://github.com/alanshaw/it-pipe/commit/1e4bc73e719d913b2c5046fcef923c0208a8e80c))
+
 ### [2.0.2](https://github.com/alanshaw/it-pipe/compare/v2.0.1...v2.0.2) (2022-01-13)
 
 
