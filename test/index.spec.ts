@@ -4,6 +4,7 @@ import all from 'it-all'
 import drain from 'it-drain'
 import { filter, collect, consume } from 'streaming-iterables'
 import delay from 'delay'
+import defer from 'p-defer'
 import type { Duplex, Source } from 'it-stream-types'
 
 const oneTwoThree = () => [1, 2, 3]
@@ -136,5 +137,40 @@ describe('it-pipe', () => {
         async (source) => await drain(source)
       )
     ).to.eventually.be.rejected.with.property('message', err.message)
+  })
+
+  it('should support goodbye-style source', async () => {
+    const deferred = defer()
+    const end = 5
+    let otherEnded = false
+
+    await pipe(
+      async function * () {
+        for (let i = 0; i < end + 1; i++) {
+          yield i
+        }
+
+        while (!otherEnded) { // eslint-disable-line no-unmodified-loop-condition
+          await delay(10)
+        }
+      }, {
+        sink: async (source: Source<number>) => {
+          for await (const val of source) {
+            if (val === end) {
+              deferred.resolve()
+            }
+          }
+        },
+        source: (async function * () {
+          yield * [1, 2, 3]
+          yield end
+          await deferred.promise
+        }())
+      },
+      async (source) => {
+        await drain(source)
+        otherEnded = true
+      }
+    )
   })
 })
