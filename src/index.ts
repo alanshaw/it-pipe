@@ -22,7 +22,7 @@ export const isDuplex = <TSource, TSink = TSource, RSink = Promise<void>> (obj: 
   return obj != null && typeof obj.sink === 'function' && isIterable(obj.source)
 }
 
-const duplexPipelineFn = <TSource> (duplex: any) => {
+const duplexPipelineFn = <TSource> (duplex: it.Duplex<TSource>) => {
   return (source: any): it.Source<TSource> => {
     const p = duplex.sink(source)
 
@@ -34,7 +34,12 @@ const duplexPipelineFn = <TSource> (duplex: any) => {
         stream.end(err)
       })
 
-      return merge(stream, duplex.source)
+      const sourceWrap = async function * () {
+        yield * duplex.source
+        stream.end()
+      }
+
+      return merge(stream, sourceWrap())
     }
 
     return duplex.source
