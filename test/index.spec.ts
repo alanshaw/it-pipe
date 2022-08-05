@@ -177,10 +177,10 @@ describe('it-pipe', () => {
   it('should pipe to a duplex with a different source type to sink type', async () => {
     const data = [0, 1, 2, 3, 4]
     const collected = defer<number[]>()
-    const input: Source<number> = async function * () {
+    const input: Source<number> = (async function * () {
       await delay(1)
       yield * data
-    }()
+    }())
     const output: Duplex<string, number> = {
       source: ['hello', 'world'],
       sink: async (source) => {
