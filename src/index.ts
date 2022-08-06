@@ -50,7 +50,7 @@ const duplexPipelineFn = <TSource> (duplex: it.Duplex<TSource>) => {
 
 export type Source<A> = it.Source<A> | (() => it.Source<A>) | it.Duplex<A, any, any>
 export type Transform<A, B> = it.Transform<A, B> | it.Duplex<B, A, any>
-export type Sink<A, B> = it.Sink<A, B> | it.Duplex<A, any, B>
+export type Sink<A, B> = it.Sink<A, B> | it.Duplex<any, A, B>
 
 export function pipe<A> (
   first: Source<A>
