@@ -148,7 +148,7 @@
   },
   "dependencies": {
     "it-merge": "^1.0.4",
-    "it-pushable": "^2.0.0",
+    "it-pushable": "^3.1.0",
     "it-stream-types": "^1.0.3"
   },
   "devDependencies": {
