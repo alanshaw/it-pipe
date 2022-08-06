@@ -27,7 +27,9 @@ const duplexPipelineFn = <TSource> (duplex: it.Duplex<TSource>) => {
     const p = duplex.sink(source)
 
     if (p.then != null) {
-      const stream = pushable<TSource>()
+      const stream = pushable<TSource>({
+        objectMode: true
+      })
       p.then(() => {
         stream.end()
       }, (err: Error) => {
