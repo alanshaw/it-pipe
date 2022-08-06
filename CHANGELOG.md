@@ -1,3 +1,20 @@
+## [2.0.4](https://github.com/alanshaw/it-pipe/compare/v2.0.3...v2.0.4) (2022-08-06)
+
+
+### Bug Fixes
+
+* correct sink duplex type ([#40](https://github.com/alanshaw/it-pipe/issues/40)) ([dd3b0cb](https://github.com/alanshaw/it-pipe/commit/dd3b0cb491e62f0bdc91933bf8a1cdcbaa26b9b1))
+
+
+### Trivial Changes
+
+* update project config ([#41](https://github.com/alanshaw/it-pipe/issues/41)) ([09c782f](https://github.com/alanshaw/it-pipe/commit/09c782f51ccc745330e57a0765c88f7c85f6c3ae))
+
+
+### Dependencies
+
+* update it-pushable dep ([#42](https://github.com/alanshaw/it-pipe/issues/42)) ([0e44e28](https://github.com/alanshaw/it-pipe/commit/0e44e2827367c0c9585e1f7beb4316679d1eff40))
+
 ### [2.0.3](https://github.com/alanshaw/it-pipe/compare/v2.0.2...v2.0.3) (2022-01-15)
 
 
