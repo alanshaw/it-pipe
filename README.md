@@ -1,20 +1,29 @@
-# it-pipe
+# it-pipe <!-- omit in toc -->
 
-[![Build Status](https://github.com/alanshaw/it-pipe/actions/workflows/js-test-and-release.yml/badge.svg?branch=master)](https://github.com/alanshaw/it-pipe/actions/workflows/js-test-and-release.yml)
-[![Dependencies Status](https://david-dm.org/alanshaw/it-pipe/status.svg)](https://david-dm.org/alanshaw/it-pipe)
-[![JavaScript Style Guide](https://img.shields.io/badge/code_style-standard-brightgreen.svg)](https://standardjs.com)
+[![codecov](https://img.shields.io/codecov/c/github/alanshaw/it-pipe.svg?style=flat-square)](https://codecov.io/gh/alanshaw/it-pipe)
+[![CI](https://img.shields.io/github/workflow/status/alanshaw/it-pipe/test%20&%20maybe%20release/master?style=flat-square)](https://github.com/alanshaw/it-pipe/actions/workflows/js-test-and-release.yml)
 
 > Utility to "pipe" async iterables together
 
-Based on this definition of streaming iterables https://gist.github.com/alanshaw/591dc7dd54e4f99338a347ef568d6ee9.
+## Table of contents <!-- omit in toc -->
 
-Almost identical to the [`pipeline`](https://github.com/bustle/streaming-iterables#pipeline) function from the [`streaming-iterables`](https://www.npmjs.com/package/streaming-iterables) module except that it supports duplex streams _and_ will automatically wrap a "source" as the first param in a function.
+- [Install](#install)
+- [Usage](#usage)
+- [API](#api)
+  - [`pipe(firstFn, ...fns)`](#pipefirstfn-fns)
+- [Contribute](#contribute)
+- [License](#license)
+- [Contribution](#contribution)
 
 ## Install
 
-```sh
-npm i it-pipe
+```console
+$ npm i it-pipe
 ```
+
+Based on this definition of streaming iterables <https://gist.github.com/alanshaw/591dc7dd54e4f99338a347ef568d6ee9>.
+
+Almost identical to the [`pipeline`](https://github.com/bustle/streaming-iterables#pipeline) function from the [`streaming-iterables`](https://www.npmjs.com/package/streaming-iterables) module except that it supports duplex streams *and* will automatically wrap a "source" as the first param in a function.
 
 ## Usage
 
@@ -53,9 +62,8 @@ Calls `firstFn` and then every function in `fns` with the result of the previous
 
 Note:
 
-* `firstFn` may be a `Function` or an `Iterable`
-* `firstFn` or any of `fns` may be a [duplex object](https://gist.github.com/alanshaw/591dc7dd54e4f99338a347ef568d6ee9#duplex-it) (an object with a `sink` and `source`).
-
+- `firstFn` may be a `Function` or an `Iterable`
+- `firstFn` or any of `fns` may be a [duplex object](https://gist.github.com/alanshaw/591dc7dd54e4f99338a347ef568d6ee9#duplex-it) (an object with a `sink` and `source`).
 
 ## Contribute
 
@@ -63,4 +71,11 @@ Feel free to dive in! [Open an issue](https://github.com/alanshaw/it-pipe/issues
 
 ## License
 
-[MIT](LICENSE) © Alan Shaw
+Licensed under either of
+
+- Apache 2.0, ([LICENSE-APACHE](LICENSE-APACHE) / <http://www.apache.org/licenses/LICENSE-2.0>)
+- MIT ([LICENSE-MIT](LICENSE-MIT) / <http://opensource.org/licenses/MIT>)
+
+## Contribution
+
+Unless you explicitly state otherwise, any contribution intentionally submitted for inclusion in the work by you, as defined in the Apache-2.0 license, shall be dual licensed as above, without any additional terms or conditions.
