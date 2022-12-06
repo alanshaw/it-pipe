@@ -1,3 +1,12 @@
+## [2.0.5](https://github.com/alanshaw/it-pipe/compare/v2.0.4...v2.0.5) (2022-12-06)
+
+
+### Dependencies
+
+* bump it-merge from 1.0.4 to 2.0.0 ([#46](https://github.com/alanshaw/it-pipe/issues/46)) ([d434924](https://github.com/alanshaw/it-pipe/commit/d43492400cf7883c977ab860cce212663578a586))
+* **dev:** bump it-all from 1.0.6 to 2.0.0 ([#45](https://github.com/alanshaw/it-pipe/issues/45)) ([ca67cc5](https://github.com/alanshaw/it-pipe/commit/ca67cc56431deda1be33d50798bbb214a185cbd5))
+* **dev:** bump it-drain from 1.0.5 to 2.0.0 ([#47](https://github.com/alanshaw/it-pipe/issues/47)) ([3e4da1c](https://github.com/alanshaw/it-pipe/commit/3e4da1cbe8849f32a1f198a71ccf67a6ac227a0a))
+
 ## [2.0.4](https://github.com/alanshaw/it-pipe/compare/v2.0.3...v2.0.4) (2022-08-06)
 
 
