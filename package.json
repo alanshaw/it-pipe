@@ -152,7 +152,7 @@
     "it-stream-types": "^1.0.3"
   },
   "devDependencies": {
-    "aegir": "^37.4.8",
+    "aegir": "^38.1.3",
     "delay": "^5.0.0",
     "it-all": "^2.0.0",
     "it-drain": "^2.0.0",
