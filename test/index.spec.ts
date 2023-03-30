@@ -40,7 +40,7 @@ describe('it-pipe', () => {
       const result = pipe(oneTwoThree())
 
       // @ts-expect-error - result should not be assignable to never - if it is
-      // then we've broken the types and this comment with cause tsc to fail
+      // then we've broken the types and this comment will cause tsc to fail
       assertNotNever(result)
       assertNotAny(result)
 
@@ -52,7 +52,7 @@ describe('it-pipe', () => {
       const result = pipe(oneTwoThree)
 
       // @ts-expect-error - result should not be assignable to never - if it is
-      // then we've broken the types and this comment with cause tsc to fail
+      // then we've broken the types and this comment will cause tsc to fail
       assertNotNever(result)
       assertNotAny(result)
 
@@ -64,7 +64,7 @@ describe('it-pipe', () => {
       const result = pipe(asyncOneTwoThree())
 
       // @ts-expect-error - result should not be assignable to never - if it is
-      // then we've broken the types and this comment with cause tsc to fail
+      // then we've broken the types and this comment will cause tsc to fail
       assertNotNever(result)
       assertNotAny(result)
 
@@ -76,7 +76,7 @@ describe('it-pipe', () => {
       const result = pipe(asyncOneTwoThree)
 
       // @ts-expect-error - result should not be assignable to never - if it is
-      // then we've broken the types and this comment with cause tsc to fail
+      // then we've broken the types and this comment will cause tsc to fail
       assertNotNever(result)
       assertNotAny(result)
 
@@ -117,7 +117,7 @@ describe('it-pipe', () => {
       )
 
       // @ts-expect-error - result should not be assignable to never - if it is
-      // then we've broken the types and this comment with cause tsc to fail
+      // then we've broken the types and this comment will cause tsc to fail
       assertNotNever(result)
       assertNotAny(result)
 
@@ -134,7 +134,7 @@ describe('it-pipe', () => {
       )
 
       // @ts-expect-error - result should not be assignable to never - if it is
-      // then we've broken the types and this comment with cause tsc to fail
+      // then we've broken the types and this comment will cause tsc to fail
       assertNotNever(result)
       assertNotAny(result)
 
@@ -148,7 +148,7 @@ describe('it-pipe', () => {
       )
 
       // @ts-expect-error - result should not be assignable to never - if it is
-      // then we've broken the types and this comment with cause tsc to fail
+      // then we've broken the types and this comment will cause tsc to fail
       assertNotNever(result)
       assertNotAny(result)
 
@@ -162,7 +162,7 @@ describe('it-pipe', () => {
       )
 
       // @ts-expect-error - result should not be assignable to never - if it is
-      // then we've broken the types and this comment with cause tsc to fail
+      // then we've broken the types and this comment will cause tsc to fail
       assertNotNever(result)
       assertNotAny(result)
 
@@ -176,7 +176,7 @@ describe('it-pipe', () => {
       )
 
       // @ts-expect-error - result should not be assignable to never - if it is
-      // then we've broken the types and this comment with cause tsc to fail
+      // then we've broken the types and this comment will cause tsc to fail
       assertNotNever(result)
       assertNotAny(result)
 
@@ -197,7 +197,7 @@ describe('it-pipe', () => {
       )
 
       // @ts-expect-error - result should not be assignable to never - if it is
-      // then we've broken the types and this comment with cause tsc to fail
+      // then we've broken the types and this comment will cause tsc to fail
       assertNotNever(result)
       assertNotAny(result)
 
@@ -216,7 +216,7 @@ describe('it-pipe', () => {
       )
 
       // @ts-expect-error - result should not be assignable to never - if it is
-      // then we've broken the types and this comment with cause tsc to fail
+      // then we've broken the types and this comment will cause tsc to fail
       assertNotNever(result)
       assertNotAny(result)
 
@@ -235,6 +235,11 @@ describe('it-pipe', () => {
         (source) => all(source)
       )
 
+      // @ts-expect-error - result should not be assignable to never - if it is
+      // then we've broken the types and this comment will cause tsc to fail
+      assertNotNever(result)
+      assertNotAny(result)
+
       expect(result[Symbol.iterator]).to.be.ok()
       expect(result).to.deep.equal([1, 2, 3])
     })
@@ -252,7 +257,7 @@ describe('it-pipe', () => {
       )
 
       // @ts-expect-error - result should not be assignable to never - if it is
-      // then we've broken the types and this comment with cause tsc to fail
+      // then we've broken the types and this comment will cause tsc to fail
       assertNotNever(result)
       assertNotAny(result)
 
