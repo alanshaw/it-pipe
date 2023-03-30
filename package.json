@@ -31,7 +31,7 @@
   "types": "./dist/src/index.d.ts",
   "files": [
     "src",
-    "dist/src",
+    "dist",
     "!dist/test",
     "!**/*.tsbuildinfo"
   ],
@@ -144,18 +144,20 @@
     "test:firefox-webworker": "aegir test -t webworker -- --browser firefox",
     "test:node": "aegir test -t node --cov",
     "test:electron-main": "aegir test -t electron-main",
-    "release": "aegir release"
+    "release": "aegir release",
+    "docs": "aegir docs"
   },
   "dependencies": {
-    "it-merge": "^2.0.0",
-    "it-pushable": "^3.1.0",
-    "it-stream-types": "^1.0.3"
+    "it-merge": "^3.0.0",
+    "it-pushable": "^3.1.0"
   },
   "devDependencies": {
-    "aegir": "^37.4.8",
+    "aegir": "^38.1.8",
     "delay": "^5.0.0",
-    "it-all": "^2.0.0",
-    "it-drain": "^2.0.0",
+    "it-all": "^3.0.0",
+    "it-drain": "^3.0.0",
+    "it-map": "^3.0.0",
+    "it-stream-types": "^1.0.3",
     "p-defer": "^4.0.0",
     "streaming-iterables": "^7.0.4"
   }
