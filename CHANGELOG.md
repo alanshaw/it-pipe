@@ -1,3 +1,14 @@
+## [3.0.0](https://github.com/alanshaw/it-pipe/compare/v2.0.5...v3.0.0) (2023-03-31)
+
+
+### ⚠ BREAKING CHANGES
+
+* when the entire pipeline is synchronous, the return value will now be synchronous
+
+### Bug Fixes
+
+* do not create unnecessary async work ([#66](https://github.com/alanshaw/it-pipe/issues/66)) ([e583174](https://github.com/alanshaw/it-pipe/commit/e58317482c0d08fe268a370f7d2e4d8fa3f6f0c1))
+
 ## [2.0.5](https://github.com/alanshaw/it-pipe/compare/v2.0.4...v2.0.5) (2022-12-06)
 
 
