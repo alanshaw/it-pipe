@@ -1,8 +1,7 @@
 import { pushable } from 'it-pushable'
 import merge from 'it-merge'
-import type * as it from 'it-stream-types'
 
-export const rawPipe = (...fns: any) => {
+export const rawPipe = (...fns: any): any => {
   let res
   while (fns.length > 0) {
     res = fns.shift()(res)
@@ -10,24 +9,28 @@ export const rawPipe = (...fns: any) => {
   return res
 }
 
-export const isIterable = (obj: any): obj is it.Source<any> => {
-  return obj != null && (
-    typeof obj[Symbol.asyncIterator] === 'function' ||
-    typeof obj[Symbol.iterator] === 'function' ||
-    typeof obj.next === 'function' // Probably, right?
-  )
+const isAsyncIterable = (obj: any): obj is AsyncIterable<unknown> => {
+  return obj?.[Symbol.asyncIterator] != null
 }
 
-export const isDuplex = <TSource, TSink = TSource, RSink = Promise<void>> (obj: any): obj is it.Duplex<TSource, TSink, RSink> => {
-  return obj != null && typeof obj.sink === 'function' && isIterable(obj.source)
+const isIterable = (obj: any): obj is Iterable<unknown> => {
+  return obj?.[Symbol.iterator] != null
 }
 
-const duplexPipelineFn = <TSource> (duplex: it.Duplex<TSource>) => {
-  return (source: any): it.Source<TSource> => {
+const isDuplex = (obj: any): obj is Duplex => {
+  if (obj == null) {
+    return false
+  }
+
+  return obj.sink != null && obj.source != null
+}
+
+const duplexPipelineFn = (duplex: Duplex<any, any, any>) => {
+  return (source: any) => {
     const p = duplex.sink(source)
 
-    if (p.then != null) {
-      const stream = pushable<TSource>({
+    if (p?.then != null) {
+      const stream = pushable<any>({
         objectMode: true
       })
       p.then(() => {
@@ -36,9 +39,21 @@ const duplexPipelineFn = <TSource> (duplex: it.Duplex<TSource>) => {
         stream.end(err)
       })
 
-      const sourceWrap = async function * () {
-        yield * duplex.source
-        stream.end()
+      let sourceWrap: () => Iterable<any> | AsyncIterable<any>
+      const source = duplex.source
+
+      if (isAsyncIterable(source)) {
+        sourceWrap = async function * () {
+          yield * source
+          stream.end()
+        }
+      } else if (isIterable(source)) {
+        sourceWrap = function * () {
+          yield * source
+          stream.end()
+        }
+      } else {
+        throw new Error('Unknown duplex source type - must be Iterable or AsyncIterable')
       }
 
       return merge(stream, sourceWrap())
@@ -48,102 +63,284 @@ const duplexPipelineFn = <TSource> (duplex: it.Duplex<TSource>) => {
   }
 }
 
-export type Source<A> = it.Source<A> | (() => it.Source<A>) | it.Duplex<A, any, any>
-export type Transform<A, B> = it.Transform<A, B> | it.Duplex<B, A, any>
-export type Sink<A, B> = it.Sink<A, B> | it.Duplex<any, A, B>
+export interface Duplex<TSource = unknown, TSink = unknown, RSink = unknown> {
+  source: TSource
+  sink: (source: TSink) => RSink
+}
 
-export function pipe<A> (
-  first: Source<A>
-): it.Source<A>
+export interface FnSource<A = any, B = any> { (source: A): Iterable<B> }
+export interface FnAsyncSource<A = any, B = any> { (source: A): AsyncIterable<B> }
 
-export function pipe<A, B> (
-  first: Source<A>,
-  second: Sink<A, B>
-): B
+export interface FnSink<A = any, B = any> { (source: A): B }
+export interface FnAsyncSink<A = any, B = any> { (source: A): Promise<B> }
 
-export function pipe<A, B, C> (
-  first: Source<A>,
-  second: Transform<A, B>,
-  third: Sink<B, C>
-): C
+type PipeSource<A = any> =
+  Iterable<A> |
+  AsyncIterable<A> |
+  FnSource<any, A> |
+  FnAsyncSource<any, A> |
+  Duplex<A, any, any>
 
-export function pipe<A, B, C, D> (
-  first: Source<A>,
-  second: Transform<A, B>,
-  third: Transform<B, C>,
-  fourth: Sink<C, D>
-): D
+type PipeTransform<A = any, B extends Iterable<any> | AsyncIterable<any> = any> =
+  FnSource<A, B> |
+  FnAsyncSource<A, B> |
+  Duplex<B, A, any>
 
-export function pipe<A, B, C, D, E> (
-  first: Source<A>,
-  second: Transform<A, B>,
-  third: Transform<B, C>,
-  fourth: Transform<C, D>,
-  fifth: Sink<D, E>
-): E
+type PipeSink<A = any, B = any> =
+  FnSink<A, B> |
+  FnAsyncSink<A, B> |
+  Duplex<any, A, B>
 
-export function pipe<A, B, C, D, E, F> (
-  first: Source<A>,
-  second: Transform<A, B>,
-  third: Transform<B, C>,
-  fourth: Transform<C, D>,
-  fifth: Transform<D, E>,
-  sixth: Sink<E, F>
-): F
+type PipeOutput<A> =
+  A extends FnSink ? ReturnType<A> :
+    A extends FnAsyncSink ? ReturnType<A> :
+      A extends Duplex<any, any, any> ? ReturnType<A['sink']> :
+        never
 
-export function pipe<A, B, C, D, E, F, G> (
-  first: Source<A>,
-  second: Transform<A, B>,
-  third: Transform<B, C>,
-  fourth: Transform<C, D>,
-  fifth: Transform<D, E>,
-  sixth: Transform<E, F>,
-  seventh: Sink<F, G>
-): G
+// single item pipe output includes pipe source types
+type SingleItemPipeOutput<A> =
+  A extends Iterable<any> ? A :
+    A extends AsyncIterable<any> ? A :
+      A extends FnSource ? ReturnType<A> :
+        A extends FnAsyncSource ? ReturnType<A> :
+          A extends Duplex<any, any, any> ? A['source'] :
+            PipeOutput<A>
 
-export function pipe<A, B, C, D, E, F, G, H> (
-  first: Source<A>,
-  second: Transform<A, B>,
-  third: Transform<B, C>,
-  fourth: Transform<C, D>,
-  fifth: Transform<D, E>,
-  sixth: Transform<E, F>,
-  seventh: Transform<F, G>,
-  eighth: Sink<G, H>
-): H
+type PipeFnInput<A> =
+  A extends Iterable<any> ? A :
+    A extends AsyncIterable<any> ? A :
+      A extends FnSource ? ReturnType<A> :
+        A extends FnAsyncSource ? ReturnType<A> :
+          A extends Duplex<any, any, any> ? A['source'] :
+            never
 
-export function pipe<A, B, C, D, E, F, G, H, I> (
-  first: Source<A>,
-  second: Transform<A, B>,
-  third: Transform<B, C>,
-  fourth: Transform<C, D>,
-  fifth: Transform<D, E>,
-  sixth: Transform<E, F>,
-  seventh: Transform<F, G>,
-  eighth: Transform<G, H>,
-  ninth: Sink<H, I>
-): I
+// one item, just a pass-through
+export function pipe<
+  A extends PipeSource
+> (
+  source: A
+): SingleItemPipeOutput<A>
 
-export function pipe<A, B, C, D, E, F, G, H, I, J> (
-  first: Source<A>,
-  second: Transform<A, B>,
-  third: Transform<B, C>,
-  fourth: Transform<C, D>,
-  fifth: Transform<D, E>,
-  sixth: Transform<E, F>,
-  seventh: Transform<F, G>,
-  eighth: Transform<G, H>,
-  ninth: Transform<H, I>,
-  tenth: Sink<I, J>
-): J
+// two items, source to sink
+export function pipe<
+  A extends PipeSource,
+  B extends PipeSink<PipeFnInput<A>>
+> (
+  source: A,
+  sink: B
+): PipeOutput<B>
+
+// three items, source to sink with transform(s) in between
+export function pipe<
+  A extends PipeSource,
+  B extends PipeTransform<PipeFnInput<A>>,
+  C extends PipeSink<PipeFnInput<B>>
+> (
+  source: A,
+  transform1: B,
+  sink: C
+): PipeOutput<C>
+
+// many items, source to sink with transform(s) in between
+export function pipe<
+  A extends PipeSource,
+  B extends PipeTransform<PipeFnInput<A>>,
+  C extends PipeTransform<PipeFnInput<B>>,
+  D extends PipeSink<PipeFnInput<C>>
+> (
+  source: A,
+  transform1: B,
+  transform2: C,
+  sink: D
+): PipeOutput<D>
+
+// lots of items, source to sink with transform(s) in between
+export function pipe<
+  A extends PipeSource,
+  B extends PipeTransform<PipeFnInput<A>>,
+  C extends PipeTransform<PipeFnInput<B>>,
+  D extends PipeTransform<PipeFnInput<C>>,
+  E extends PipeSink<PipeFnInput<D>>
+> (
+  source: A,
+  transform1: B,
+  transform2: C,
+  transform3: D,
+  sink: E
+): PipeOutput<E>
+
+// lots of items, source to sink with transform(s) in between
+export function pipe<
+  A extends PipeSource,
+  B extends PipeTransform<PipeFnInput<A>>,
+  C extends PipeTransform<PipeFnInput<B>>,
+  D extends PipeTransform<PipeFnInput<C>>,
+  E extends PipeTransform<PipeFnInput<D>>,
+  F extends PipeSink<PipeFnInput<E>>
+> (
+  source: A,
+  transform1: B,
+  transform2: C,
+  transform3: D,
+  transform4: E,
+  sink: F
+): PipeOutput<F>
+
+// lots of items, source to sink with transform(s) in between
+export function pipe<
+  A extends PipeSource,
+  B extends PipeTransform<PipeFnInput<A>>,
+  C extends PipeTransform<PipeFnInput<B>>,
+  D extends PipeTransform<PipeFnInput<C>>,
+  E extends PipeTransform<PipeFnInput<D>>,
+  F extends PipeTransform<PipeFnInput<E>>,
+  G extends PipeSink<PipeFnInput<F>>
+> (
+  source: A,
+  transform1: B,
+  transform2: C,
+  transform3: D,
+  transform4: E,
+  transform5: F,
+  sink: G
+): PipeOutput<G>
+
+// lots of items, source to sink with transform(s) in between
+export function pipe<
+  A extends PipeSource,
+  B extends PipeTransform<PipeFnInput<A>>,
+  C extends PipeTransform<PipeFnInput<B>>,
+  D extends PipeTransform<PipeFnInput<C>>,
+  E extends PipeTransform<PipeFnInput<D>>,
+  F extends PipeTransform<PipeFnInput<E>>,
+  G extends PipeTransform<PipeFnInput<F>>,
+  H extends PipeSink<PipeFnInput<G>>
+> (
+  source: A,
+  transform1: B,
+  transform2: C,
+  transform3: D,
+  transform4: E,
+  transform5: F,
+  transform6: G,
+  sink: H
+): PipeOutput<H>
+
+// lots of items, source to sink with transform(s) in between
+export function pipe<
+  A extends PipeSource,
+  B extends PipeTransform<PipeFnInput<A>>,
+  C extends PipeTransform<PipeFnInput<B>>,
+  D extends PipeTransform<PipeFnInput<C>>,
+  E extends PipeTransform<PipeFnInput<D>>,
+  F extends PipeTransform<PipeFnInput<E>>,
+  G extends PipeTransform<PipeFnInput<F>>,
+  H extends PipeTransform<PipeFnInput<G>>,
+  I extends PipeSink<PipeFnInput<H>>
+> (
+  source: A,
+  transform1: B,
+  transform2: C,
+  transform3: D,
+  transform4: E,
+  transform5: F,
+  transform6: G,
+  transform7: H,
+  sink: I
+): PipeOutput<I>
+
+// lots of items, source to sink with transform(s) in between
+export function pipe<
+  A extends PipeSource,
+  B extends PipeTransform<PipeFnInput<A>>,
+  C extends PipeTransform<PipeFnInput<B>>,
+  D extends PipeTransform<PipeFnInput<C>>,
+  E extends PipeTransform<PipeFnInput<D>>,
+  F extends PipeTransform<PipeFnInput<E>>,
+  G extends PipeTransform<PipeFnInput<F>>,
+  H extends PipeTransform<PipeFnInput<G>>,
+  I extends PipeTransform<PipeFnInput<H>>,
+  J extends PipeSink<PipeFnInput<I>>
+> (
+  source: A,
+  transform1: B,
+  transform2: C,
+  transform3: D,
+  transform4: E,
+  transform5: F,
+  transform6: G,
+  transform7: H,
+  transform8: I,
+  sink: J
+): PipeOutput<J>
+
+// lots of items, source to sink with transform(s) in between
+export function pipe<
+  A extends PipeSource,
+  B extends PipeTransform<PipeFnInput<A>>,
+  C extends PipeTransform<PipeFnInput<B>>,
+  D extends PipeTransform<PipeFnInput<C>>,
+  E extends PipeTransform<PipeFnInput<D>>,
+  F extends PipeTransform<PipeFnInput<E>>,
+  G extends PipeTransform<PipeFnInput<F>>,
+  H extends PipeTransform<PipeFnInput<G>>,
+  I extends PipeTransform<PipeFnInput<H>>,
+  J extends PipeTransform<PipeFnInput<I>>,
+  K extends PipeSink<PipeFnInput<J>>
+> (
+  source: A,
+  transform1: B,
+  transform2: C,
+  transform3: D,
+  transform4: E,
+  transform5: F,
+  transform6: G,
+  transform7: H,
+  transform8: I,
+  transform9: J,
+  sink: K
+): PipeOutput<K>
+
+// lots of items, source to sink with transform(s) in between
+export function pipe<
+  A extends PipeSource,
+  B extends PipeTransform<PipeFnInput<A>>,
+  C extends PipeTransform<PipeFnInput<B>>,
+  D extends PipeTransform<PipeFnInput<C>>,
+  E extends PipeTransform<PipeFnInput<D>>,
+  F extends PipeTransform<PipeFnInput<E>>,
+  G extends PipeTransform<PipeFnInput<F>>,
+  H extends PipeTransform<PipeFnInput<G>>,
+  I extends PipeTransform<PipeFnInput<H>>,
+  J extends PipeTransform<PipeFnInput<I>>,
+  K extends PipeTransform<PipeFnInput<J>>,
+  L extends PipeSink<PipeFnInput<K>>
+> (
+  source: A,
+  transform1: B,
+  transform2: C,
+  transform3: D,
+  transform4: E,
+  transform5: F,
+  transform6: G,
+  transform7: H,
+  transform8: I,
+  transform9: J,
+  transform10: K,
+  sink: L
+): PipeOutput<L>
 
 export function pipe (first: any, ...rest: any[]): any {
+  if (first == null) {
+    throw new Error('Empty pipeline')
+  }
+
   // Duplex at start: wrap in function and return duplex source
   if (isDuplex(first)) {
     const duplex = first
     first = () => duplex.source
   // Iterable at start: wrap in function
-  } else if (isIterable(first)) {
+  } else if (isIterable(first) || isAsyncIterable(first)) {
     const source = first
     first = () => source
   }
