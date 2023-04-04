@@ -1,6 +1,6 @@
 {
   "name": "it-pipe",
-  "version": "3.0.0",
+  "version": "3.0.1",
   "description": "Utility to \"pipe\" async iterables together",
   "author": "Alan Shaw",
   "license": "Apache-2.0 OR MIT",

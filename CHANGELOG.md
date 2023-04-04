@@ -1,3 +1,10 @@
+## [3.0.1](https://github.com/alanshaw/it-pipe/compare/v3.0.0...v3.0.1) (2023-04-04)
+
+
+### Bug Fixes
+
+* reuse types from it-stream-types to simplify ([#68](https://github.com/alanshaw/it-pipe/issues/68)) ([9fa98e1](https://github.com/alanshaw/it-pipe/commit/9fa98e1435ea39efa66bcea67d8546fe046939da))
+
 ## [3.0.0](https://github.com/alanshaw/it-pipe/compare/v2.0.5...v3.0.0) (2023-03-31)
 
 
