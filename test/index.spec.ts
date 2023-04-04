@@ -6,8 +6,7 @@ import map from 'it-map'
 import { filter, collect, consume } from 'streaming-iterables'
 import delay from 'delay'
 import defer from 'p-defer'
-import type { Source } from 'it-stream-types'
-import type { Duplex } from '../src/index.js'
+import type { Source, Duplex } from 'it-stream-types'
 
 const oneTwoThree = (): number[] => [1, 2, 3]
 

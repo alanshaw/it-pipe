@@ -1,116 +1,41 @@
 import { pushable } from 'it-pushable'
 import merge from 'it-merge'
+import type { Duplex, Transform, Sink } from 'it-stream-types'
 
-export const rawPipe = (...fns: any): any => {
-  let res
-  while (fns.length > 0) {
-    res = fns.shift()(res)
-  }
-  return res
-}
-
-const isAsyncIterable = (obj: any): obj is AsyncIterable<unknown> => {
-  return obj?.[Symbol.asyncIterator] != null
-}
-
-const isIterable = (obj: any): obj is Iterable<unknown> => {
-  return obj?.[Symbol.iterator] != null
-}
-
-const isDuplex = (obj: any): obj is Duplex => {
-  if (obj == null) {
-    return false
-  }
-
-  return obj.sink != null && obj.source != null
-}
-
-const duplexPipelineFn = (duplex: Duplex<any, any, any>) => {
-  return (source: any) => {
-    const p = duplex.sink(source)
-
-    if (p?.then != null) {
-      const stream = pushable<any>({
-        objectMode: true
-      })
-      p.then(() => {
-        stream.end()
-      }, (err: Error) => {
-        stream.end(err)
-      })
-
-      let sourceWrap: () => Iterable<any> | AsyncIterable<any>
-      const source = duplex.source
-
-      if (isAsyncIterable(source)) {
-        sourceWrap = async function * () {
-          yield * source
-          stream.end()
-        }
-      } else if (isIterable(source)) {
-        sourceWrap = function * () {
-          yield * source
-          stream.end()
-        }
-      } else {
-        throw new Error('Unknown duplex source type - must be Iterable or AsyncIterable')
-      }
-
-      return merge(stream, sourceWrap())
-    }
-
-    return duplex.source
-  }
-}
-
-export interface Duplex<TSource = unknown, TSink = unknown, RSink = unknown> {
-  source: TSource
-  sink: (source: TSink) => RSink
-}
-
-export interface FnSource<A = any, B = any> { (source: A): Iterable<B> }
-export interface FnAsyncSource<A = any, B = any> { (source: A): AsyncIterable<B> }
-
-export interface FnSink<A = any, B = any> { (source: A): B }
-export interface FnAsyncSink<A = any, B = any> { (source: A): Promise<B> }
+interface SourceFn<A = any> { (): A }
 
 type PipeSource<A = any> =
   Iterable<A> |
   AsyncIterable<A> |
-  FnSource<any, A> |
-  FnAsyncSource<any, A> |
+  SourceFn<A> |
   Duplex<A, any, any>
 
-type PipeTransform<A = any, B extends Iterable<any> | AsyncIterable<any> = any> =
-  FnSource<A, B> |
-  FnAsyncSource<A, B> |
-  Duplex<B, A, any>
+type PipeTransform<A = any, B = any> =
+  Transform<A, B> |
+  Duplex<B, A>
 
 type PipeSink<A = any, B = any> =
-  FnSink<A, B> |
-  FnAsyncSink<A, B> |
+  Sink<A, B> |
   Duplex<any, A, B>
 
 type PipeOutput<A> =
-  A extends FnSink ? ReturnType<A> :
-    A extends FnAsyncSink ? ReturnType<A> :
-      A extends Duplex<any, any, any> ? ReturnType<A['sink']> :
-        never
+  A extends Sink<any> ? ReturnType<A> :
+    A extends Duplex<any, any, any> ? ReturnType<A['sink']> :
+      never
 
 // single item pipe output includes pipe source types
 type SingleItemPipeOutput<A> =
   A extends Iterable<any> ? A :
     A extends AsyncIterable<any> ? A :
-      A extends FnSource ? ReturnType<A> :
-        A extends FnAsyncSource ? ReturnType<A> :
-          A extends Duplex<any, any, any> ? A['source'] :
-            PipeOutput<A>
+      A extends SourceFn ? ReturnType<A> :
+        A extends Duplex<any, any, any> ? A['source'] :
+          PipeOutput<A>
 
 type PipeFnInput<A> =
   A extends Iterable<any> ? A :
     A extends AsyncIterable<any> ? A :
-      A extends FnSource ? ReturnType<A> :
-        A extends FnAsyncSource ? ReturnType<A> :
+      A extends SourceFn ? ReturnType<A> :
+        A extends Transform<any, any> ? ReturnType<A> :
           A extends Duplex<any, any, any> ? A['source'] :
             never
 
@@ -364,4 +289,66 @@ export function pipe (first: any, ...rest: any[]): any {
   }
 
   return rawPipe(...fns)
+}
+
+export const rawPipe = (...fns: any): any => {
+  let res
+  while (fns.length > 0) {
+    res = fns.shift()(res)
+  }
+  return res
+}
+
+const isAsyncIterable = (obj: any): obj is AsyncIterable<unknown> => {
+  return obj?.[Symbol.asyncIterator] != null
+}
+
+const isIterable = (obj: any): obj is Iterable<unknown> => {
+  return obj?.[Symbol.iterator] != null
+}
+
+const isDuplex = (obj: any): obj is Duplex => {
+  if (obj == null) {
+    return false
+  }
+
+  return obj.sink != null && obj.source != null
+}
+
+const duplexPipelineFn = (duplex: Duplex<any, any, any>) => {
+  return (source: any) => {
+    const p = duplex.sink(source)
+
+    if (p?.then != null) {
+      const stream = pushable<any>({
+        objectMode: true
+      })
+      p.then(() => {
+        stream.end()
+      }, (err: Error) => {
+        stream.end(err)
+      })
+
+      let sourceWrap: () => Iterable<any> | AsyncIterable<any>
+      const source = duplex.source
+
+      if (isAsyncIterable(source)) {
+        sourceWrap = async function * () {
+          yield * source
+          stream.end()
+        }
+      } else if (isIterable(source)) {
+        sourceWrap = function * () {
+          yield * source
+          stream.end()
+        }
+      } else {
+        throw new Error('Unknown duplex source type - must be Iterable or AsyncIterable')
+      }
+
+      return merge(stream, sourceWrap())
+    }
+
+    return duplex.source
+  }
 }
