@@ -223,7 +223,7 @@ describe('it-pipe', () => {
     })
 
     it('should pipe iterable source -> duplex -> sink function', () => {
-      const duplex: Duplex<number[], number[], void> = {
+      const duplex: Duplex<number[], number[]> = {
         sink: source => { duplex.source = source },
         source: []
       }
